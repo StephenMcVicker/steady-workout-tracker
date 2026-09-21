@@ -24,7 +24,7 @@ Configured as a static export for future hosting. The app manifest and productio
 ## Behaviour
 
 - Four routines: Push, Pull, Legs, and Full Body, sharing ten exercises. Each set records kg and actual reps.
-- Completing a set returns to the routine. Sets can be edited or undone while the exercise is in progress. An exercise locks once all its sets are complete.
+- Completing a set advances within the exercise. The final set returns to the routine, with completed exercises grouped below To do. Once every exercise is complete, a celebration replaces the list. Sets can be edited or undone while the exercise is in progress. An exercise locks once all its sets are complete.
 - Each category keeps its own unfinished session across reloads.
 - Choose a local calendar date (today by default); dates can be changed before finishing. Old saved sessions remain compatible.
 - Finish all sets to view a summary and archive a session. Starting again uses the last recorded exercise weight.
