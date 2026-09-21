@@ -1,0 +1,14 @@
+import {readdirSync,readFileSync,writeFileSync} from "node:fs";
+import {join,relative} from "node:path";
+import {createHash} from "node:crypto";
+const root="dist/client";
+const base=(process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
+const walk=dir=>readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(dir,e.name)):[join(dir,e.name)]);
+const files=walk(root).filter(f=>/\.(js|css|jpg|png|svg|html|webmanifest|rsc)$/.test(f)&&!f.endsWith("/sw.js"));
+const hash=createHash("sha256");hash.update(base);for(const f of files)hash.update(readFileSync(f));
+const assets=[base,...files.map(f=>base+relative(root,f))];
+let sw=readFileSync("public/sw.js","utf8").replace("BUILD_VERSION",hash.digest("hex").slice(0,12));
+sw=sw.replace(/^const ASSETS = .*;$/m,`const ASSETS = ${JSON.stringify(assets)};`);
+writeFileSync(join(root,"sw.js"),sw);
+writeFileSync(join(root,".nojekyll"),"");
+console.log(`Offline bundle prepared: ${assets.length} local assets under ${base}`);
