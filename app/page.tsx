@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import { ArrowUpRight, ArrowDownLeft, Footprints, Dumbbell, Check, ChevronRight, ArrowLeft, Clock3, History, Smartphone, Leaf, CircleCheck, Minus, Plus, Trophy, Info, X, CalendarDays, Layers3, Target, LockKeyhole, Timer, Download, Upload } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Footprints, Dumbbell, Check, ChevronRight, ChevronDown, ArrowLeft, Clock3, History, Smartphone, Leaf, CircleCheck, Minus, Plus, Trophy, Info, X, CalendarDays, Layers3, Target, LockKeyhole, Timer, Download, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
@@ -20,6 +20,7 @@ export default function Home(){
  const [storageError,setStorageError]=useState("");
  const [view,setView]=useState<"home"|"workout"|"history"|"summary">("home");
  const [detail,setDetail]=useState<string|null>(null);
+ const [planExerciseId,setPlanExerciseId]=useState<string|null>(null);
  const [summaryId,setSummaryId]=useState<string|null>(null);
  const [draftDate,setDraftDate]=useState("");
  const [notice,setNotice]=useState("");
@@ -53,9 +54,9 @@ export default function Home(){
   try{Promise.resolve(ctx.registerTool({name:"read_workout_progress",description:"Read the selected routine, exercises and locally recorded set progress.",inputSchema:{type:"object",properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:(input:unknown)=>{if(!input||typeof input!=="object"||Object.keys(input).length)throw new Error("Expected an empty object");const s=lastRef.current;return {category:s.selected,exercises:workouts[s.selected],session:s.active[s.selected]??null};}},{signal:lifecycle.signal})).catch(()=>{});}catch{}
   return()=>lifecycle.abort();
  },[]);
- function selectCategory(value:string){setStore(s=>({...s,selected:value as Category}));setDetail(null);}
+ function selectCategory(value:string){setStore(s=>({...s,selected:value as Category}));setDetail(null);setPlanExerciseId(null);}
  function changeDate(date:string){if(session)setStore(s=>({...s,active:{...s.active,[category]:{...s.active[category]!,date}}}));else setDraftDate(date);}
- function start(){if(!ready||!chosenDate)return;if(!session)setStore(s=>({...s,active:{...s.active,[category]:newSession(category,s.weights,chosenDate)}}));setView("workout");}
+ function start(){if(!ready||!chosenDate)return;if(!session)setStore(s=>({...s,active:{...s.active,[category]:newSession(category,s.weights,chosenDate)}}));setPlanExerciseId(null);setView("workout");}
  function openExercise(e:Exercise){if(!session||session.exercises[e.id].every(s=>s.done))return;setDetail(e.id);window.scrollTo({top:0});}
  function updateSet(id:string,index:number,kg:number,reps:number,done:boolean){
   setStore(s=>{const current=s.active[category];if(!current||current.exercises[id].every(set=>set.done))return s;const sets=current.exercises[id].map((x,i)=>i===index?{kg,reps,done}:x);return {...s,weights:{...s.weights,[id]:kg},active:{...s.active,[category]:{...current,exercises:{...current.exercises,[id]:sets}}}};});
@@ -101,7 +102,7 @@ export default function Home(){
    <div className="screen-transition" key={screenKey}>{view==="home"?<>
     <div className="page-heading"><p className="eyebrow">ONE SET AT A TIME</p><h1 ref={headingRef} tabIndex={-1}>What’s the plan today?</h1><p>Pick your workout. Find your rhythm.</p></div>
     <Tabs value={category} onValueChange={selectCategory} className="workout-tabs planner-tabs"><TabsList className="category-list" aria-label="Workout categories">{categories.map(c=>{const Icon=categoryIcons[c];return <TabsTrigger key={c} value={c} className="category-tab"><Icon/><span>{c}</span></TabsTrigger>;})}</TabsList>
-    {categories.map(c=><TabsContent key={c} value={c}><div className="planner-layout"><section className="plan-card"><div className="plan-title"><span className="plan-icon">{(()=>{const Icon=categoryIcons[c];return <Icon size={28}/>;})()}</span><div><p className="eyebrow">YOUR WORKOUT</p><h2>{c==="Full Body"?"Full body, steady progress.":`${c} day.`}</h2><p>{descriptions[c]}</p></div></div><div className="plan-meta"><span><Dumbbell size={16}/>{workouts[c].length} exercises</span><span><Clock3 size={16}/>{duration(c)} min</span><span><CircleCheck size={16}/>Free weights</span></div><div className="plan-exercises">{workouts[c].map(e=><div key={e.id} className="plan-exercise"><img src={assetPath(`/exercises/${e.image}-1.jpg`)} alt={e.name} width={80} height={64}/><div><h3>{e.name}</h3><p>{e.sets} sets · {e.reps} reps{e.id==="lunge"?" / leg":""}</p></div></div>)}</div></section><aside className="planner-side"><section className="session-panel planning-panel"><p className="eyebrow">{session?"PICK UP WHERE YOU LEFT OFF":"MAKE IT YOUR SESSION"}</p><h2>{session?"You’re already on your way.":"Ready when you are."}</h2><DatePicker value={chosenDate} onChange={changeDate} disabled={!ready}/>{session&&<div className="resume-progress"><span>{completed} of {total} sets complete</span><Progress value={completed/total*100} aria-label="Saved session progress"/></div>}<Button className="primary-action" disabled={!ready} onClick={start}>{session?"Resume session":"Start session"}<ArrowUpRight/></Button><p className="autosave">{storageError?"Saving unavailable":"Saved on this device, as you go."}</p></section><div className="mini-tip"><Leaf size={20}/><p>Start light. Keep a little in the tank.</p></div></aside></div></TabsContent>)}
+    {categories.map(c=><TabsContent key={c} value={c}><div className="planner-layout"><section className="plan-card"><div className="plan-title"><span className="plan-icon">{(()=>{const Icon=categoryIcons[c];return <Icon size={28}/>;})()}</span><div><p className="eyebrow">YOUR WORKOUT</p><h2>{c==="Full Body"?"Full body, steady progress.":`${c} day.`}</h2><p>{descriptions[c]}</p></div></div><div className="plan-meta"><span><Dumbbell size={16}/>{workouts[c].length} exercises</span><span><Clock3 size={16}/>{duration(c)} min</span><span><CircleCheck size={16}/>Free weights</span></div><div className="plan-exercises">{workouts[c].map(e=><PlanExerciseRow key={e.id} category={c} exercise={e} expanded={planExerciseId===e.id} onToggle={()=>setPlanExerciseId(current=>current===e.id?null:e.id)}/>)}</div></section><aside className="planner-side"><section className="session-panel planning-panel"><p className="eyebrow">{session?"PICK UP WHERE YOU LEFT OFF":"MAKE IT YOUR SESSION"}</p><h2>{session?"You’re already on your way.":"Ready when you are."}</h2><DatePicker value={chosenDate} onChange={changeDate} disabled={!ready}/>{session&&<div className="resume-progress"><span>{completed} of {total} sets complete</span><Progress value={completed/total*100} aria-label="Saved session progress"/></div>}<Button className="primary-action" disabled={!ready} onClick={start}>{session?"Resume session":"Start session"}<ArrowUpRight/></Button><p className="autosave">{storageError?"Saving unavailable":"Saved on this device, as you go."}</p></section><div className="mini-tip"><Leaf size={20}/><p>Start light. Keep a little in the tank.</p></div></aside></div></TabsContent>)}
     </Tabs>{recent()}
    </>:view==="history"?<><div className="page-heading"><p className="eyebrow">YOUR TRAINING LOG</p><h1 ref={headingRef} tabIndex={-1}>Look how far you’ve come.</h1><p>Every session, right here.</p></div>{recent(true)}<section className="backup-panel"><div className="backup-copy"><h2>Back up your progress</h2><p>Save a copy of your sessions and weights, or restore them on this device.</p></div><input ref={backupInputRef} className="backup-file" type="file" accept="application/json,.json" onChange={importBackup} aria-label="Choose a Steady backup file"/><div className="backup-actions"><Button variant="outline" onClick={exportBackup}><Download size={17}/>Export backup</Button><Button variant="outline" onClick={()=>backupInputRef.current?.click()}><Upload size={17}/>Import backup</Button></div></section></>:view==="summary"&&summary?<SessionSummary session={summary} onBack={()=>setView("history")} onHome={()=>setView("home")}/>:view==="workout"&&session&&completed===total?<WorkoutComplete category={category} count={exercises.length} total={total} date={chosenDate} onDate={changeDate} onFinish={finish}/>:exercise&&session?<ExerciseDetail key={exercise.id} exercise={exercise} sets={session.exercises[exercise.id]} onBack={()=>setDetail(null)} onSave={(index,kg,reps,done)=>updateSet(exercise.id,index,kg,reps,done)} history={history}/>:<>
     <Button variant="ghost" className="back-button" onClick={()=>setView("home")}><ArrowLeft/>Back to plan</Button><div className="page-heading workout-page-heading"><p className="eyebrow">{chosenDate?formatDate(chosenDate):"YOUR SESSION"}</p><h1 ref={headingRef} tabIndex={-1}>{category} day<span className="title-dot">.</span></h1><p>{descriptions[category]}</p></div>
@@ -110,6 +111,20 @@ export default function Home(){
    </>}</div>
    <footer className="page-footer"><span><Smartphone size={14}/>No account. Just your progress.</span><span>Made for the long run.</span></footer>
   </main>{nav(true)}{notice&&<div role="status" className="toast"><CircleCheck size={20}/><span>{notice}</span><button aria-label="Dismiss notification" onClick={()=>setNotice("")}><X size={17}/></button></div>}
+ </div>;
+}
+function PlanExerciseRow({category,exercise:e,expanded,onToggle}:{category:Category;exercise:Exercise;expanded:boolean;onToggle:()=>void}){
+ const guideId=`plan-guide-${category.toLowerCase().replace(/\s/g,"-")}-${e.id}`;
+ return <div className={`plan-exercise-wrap ${expanded?"is-expanded":""}`}>
+  <button type="button" className="plan-exercise" aria-expanded={expanded} aria-controls={guideId} onClick={onToggle}>
+   <img src={assetPath(`/exercises/${e.image}-1.jpg`)} alt="" width={80} height={64}/>
+   <span className="plan-exercise-copy"><strong>{e.name}</strong><span>{e.sets} sets · {e.reps} reps{e.id==="lunge"?" / leg":""}</span></span>
+   <span className="plan-exercise-action">{expanded?"Close":"How to"}{expanded?<ChevronDown size={16}/>:<ChevronRight size={16}/>}</span>
+  </button>
+  {expanded&&<div className="plan-exercise-guide" id={guideId}>
+   <div className="guide-photos">{[0,1].map(i=><figure key={i}><img src={assetPath(`/exercises/${e.image}-${i}.jpg`)} alt={`${e.name}, ${i===0?"starting position":"movement"}`} width={600} height={400}/><figcaption>{i===0?"Start":"Movement"}</figcaption></figure>)}</div>
+   <div className="guide-instructions"><h3>How to do it</h3><ol>{e.cues.map((cue,i)=><li key={cue}><span>{i+1}</span>{cue}</li>)}</ol>{e.photoNote&&<p className="guide-note">{e.photoNote}</p>}{e.note&&<p className="guide-note">{e.note}</p>}<a className="source-link" href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noreferrer">Reference photos: Free Exercise DB <ArrowUpRight size={13}/></a></div>
+  </div>}
  </div>;
 }
 function WorkoutComplete({category,count,total,date,onDate,onFinish}:{category:Category;count:number;total:number;date:string;onDate:(date:string)=>void;onFinish:()=>void}){
