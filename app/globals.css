@@ -31,3 +31,19 @@
 .screen-transition{animation:screen-enter .22s cubic-bezier(.2,.75,.25,1) both;transform-origin:top center}
 @keyframes screen-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.screen-transition{animation:none}.exercise-card{transition:none}}
+
+/* Rest timer, progression cue and local backup controls */
+.rest-timer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px;padding:12px;background:#edf5ef;border:1px solid #dce9df;border-radius:11px;color:#426b50}
+.rest-timer>div{display:flex;align-items:center;gap:8px}.rest-timer>div:first-child>span{display:flex;align-items:baseline;gap:8px;font-size:12px}.rest-timer strong{font-size:20px;font-variant-numeric:tabular-nums;color:#275b3a}.rest-timer>div:last-child{gap:5px}.rest-timer button{min-height:36px;padding:0 10px;font-size:12px}
+.performance-note{display:grid;gap:11px;margin:17px 0;padding:15px;background:#f5f8f5;border:1px solid #e6eee7;border-radius:11px}.performance-label{font-size:10px;font-weight:700;letter-spacing:.8px;color:#688171}.performance-note>p:nth-child(2){display:grid;gap:4px;font-size:12px;color:#64766a}.performance-note>div{display:flex;gap:8px;padding-top:10px;border-top:1px solid #e4ebe5;color:#48805a}.performance-note>div>span{display:grid;gap:4px;font-size:12px;line-height:1.5;color:#66796c}.performance-note>div strong{font-size:12px;color:#356748}
+.backup-panel{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:30px;padding:22px;border:1px solid var(--border);border-radius:14px;background:white}.backup-copy{display:grid;gap:6px}.backup-copy h2{font-size:17px;font-weight:600;letter-spacing:-.3px}.backup-copy p{max-width:440px;font-size:13px;line-height:1.5;color:#738177}.backup-actions{display:flex;gap:9px;flex-shrink:0}.backup-actions button{min-height:42px;gap:7px;font-size:13px}.backup-file{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:760px){.backup-panel{align-items:stretch;flex-direction:column;gap:15px;padding:18px}.backup-actions{display:grid;grid-template-columns:1fr 1fr}.backup-actions button{padding:0 10px;font-size:12px}.rest-timer{align-items:flex-start;flex-direction:column}.rest-timer>div:last-child{align-self:stretch;justify-content:space-between}.rest-timer>div:last-child button{flex:1}}
+
+/* App-wide navigation and in-workout progress polish */
+.workout-progress-inline{display:none}
+.top-nav button,.bottom-nav button{transition:background-color .18s ease,color .18s ease,transform .12s ease}
+.top-nav button:active,.bottom-nav button:active{transform:scale(.96)}
+.back-button{gap:7px!important}
+@media(max-width:760px){.workout-progress-inline{display:grid;gap:9px;margin:-7px 0 24px;padding:13px 15px;background:#edf4ef;border:1px solid #dfebe2;border-radius:12px}.workout-progress-inline>div{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#66796b}.workout-progress-inline strong{font-size:13px;color:#315e40;font-weight:650}.workout-progress-inline [data-slot=progress]{height:5px;background:#d8e6dc}.workout-layout .session-column .session-progress-block{display:none}}
+.performance-note>p:nth-child(2){display:block;line-height:1.5;overflow-wrap:anywhere}
+@media(prefers-reduced-motion:reduce){.top-nav button,.bottom-nav button{transition:none}.top-nav button:active,.bottom-nav button:active{transform:none}}

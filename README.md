@@ -25,10 +25,11 @@ Configured as a static export for future hosting. The app manifest and productio
 
 - Four routines: Push, Pull, Legs, and Full Body, sharing ten exercises. Each set records kg and actual reps.
 - Completing a set advances within the exercise. The final set returns to the routine, with completed exercises grouped below To do. Once every exercise is complete, a celebration replaces the list. Sets can be edited or undone while the exercise is in progress. An exercise locks once all its sets are complete.
-- Each category keeps its own unfinished session across reloads.
+- Each category keeps its own unfinished session across reloads. A 75-second rest timer starts after each set, with skip and +30-second controls.
+- Exercise details show the previous logged performance and a simple target for today when a matching session exists.
 - Choose a local calendar date (today by default); dates can be changed before finishing. Old saved sessions remain compatible.
 - Finish all sets to view a summary and archive a session. Starting again uses the last recorded exercise weight.
-- Progress is stored only in this browser's localStorage, under `steady-workouts-v1`. Clearing site data removes it. No cross-device sync; changing the site origin creates a separate store. Avoid editing the same session in multiple tabs.
+- Progress is stored only in this browser's localStorage, under `steady-workouts-v1`. Export/import JSON backups from History to move or restore it. Import validates the backup and asks before replacing current local data. Clearing site data removes progress. No automatic cross-device sync; changing the site origin creates a separate store. Avoid editing the same session in multiple tabs.
 - Invalid stored data is preserved and shown as a warning; new changes stay in memory in that case.
 - Optional read-only WebMCP tool: `read_workout_progress`, feature detected at runtime.
 
